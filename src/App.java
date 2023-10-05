@@ -92,6 +92,9 @@ public class App {
                     String city_name = getUserInput();
                     searchCity(city_name);
                     break;
+                case "3":
+                    // Add a new city to the cities table 
+                    break;
 
             }
         }
