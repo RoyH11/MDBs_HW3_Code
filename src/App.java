@@ -11,7 +11,6 @@ public class App {
     private static final String user;
     private static final String password;
     private static final Connection connection;
-
     private static final Scanner scanner = new Scanner(System.in);
 
 
@@ -30,17 +29,7 @@ public class App {
         connection = connect();
     }
 
-    private static void menu(){
-        // Create a menu for the user to select from
-        System.out.println("Please select an option from the menu below:");
-        System.out.println("1. List all the countries");
-        System.out.println("2. Select a city/cities");
-        System.out.println("3. Add a new city to the cities table");
-        System.out.println("4. Update a city in the cities table");
-        System.out.println("5. Delete a city from the cities table");
-        System.out.println("6. Exit");
-    }
-    public static Connection connect() {
+    private static Connection connect() {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(url, user, password);
@@ -52,36 +41,71 @@ public class App {
         return conn;
     }
 
+    private static void menu(){
+        // Create a menu for the user to select from
+        System.out.println("Please select an option from the menu below:");
+        System.out.println("1. List all the countries");
+        System.out.println("2. Select a city/cities");
+        System.out.println("3. Add a new city to the cities table");
+        System.out.println("4. Update a city in the cities table");
+        System.out.println("5. Delete a city from the cities table");
+        System.out.println("6. Exit");
+    }
+
+
     private static String getUserInput() {
         return scanner.nextLine().trim();
+    } // getUserInput
+
+    private static void sqlHandler(String sql, String attribute){
+        // sql execution helper method
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+            while(resultSet.next()){
+                System.out.println(resultSet.getString(attribute));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());;
+        }
     }
 
-    // TODO: Need a resultset handler
-
-    private static void listCountries() throws SQLException {
+    private static void listCountries() {
+        // List all the countries
         String sql = "SELECT * FROM homework.countries;";
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sql);
-        while(resultSet.next()){
-            System.out.println(resultSet.getString("country_name"));
-        }
+        sqlHandler(sql, "country_name");
     }
 
-    private static void searchCity(String city_name) throws SQLException {
+
+    private static void searchCity(String city_name) {
+        // Search a city by name
         String sql = "SELECT * FROM homework.cities WHERE lower(name) = '" + city_name +"';";
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sql);
-        while(resultSet.next()){
-            System.out.println(resultSet.getString("name"));
-        }
+        sqlHandler(sql, "name");
     }
 
-    public static void main(String[] args) throws SQLException {
+    private static void createCity(String city_name, String postal_code, String country_code){
+        // Create a city
+        // TODO: finish this
+    }
+
+
+
+
+
+
+
+    public static void main(String[] args) {
 
         boolean loop = true;
+
         while (loop){
             menu();
             String choice = getUserInput();
+            String city_name;
+            String postal_code;
+            String country_code;
+
             switch (choice) {
                 case "1":
                     // List all the countries
@@ -89,13 +113,31 @@ public class App {
                     break;
                 case "2":
                     // Search a city
-                    String city_name = getUserInput();
+                    city_name = getUserInput();
                     searchCity(city_name);
                     break;
                 case "3":
-                    // Add a new city to the cities table 
+                    // Add a new city to the cities table
+                    city_name = getUserInput();
+                    postal_code = getUserInput();
+                    country_code = getUserInput();
+                    createCity(city_name, postal_code, country_code);
                     break;
-
+                case "4":
+                    // Update a city in the cities table
+                    city_name = getUserInput();
+                    postal_code = getUserInput();
+                    country_code = getUserInput();
+                    // TODO: create method
+                    break;
+                case "5":
+                    // Delete a city
+                    // TODO: start this 
+                    break;
+                case "6":
+                    // Exit
+                    loop = false;
+                    break;
             }
         }
     }
