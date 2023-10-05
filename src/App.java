@@ -132,7 +132,7 @@ public class App {
                     break;
                 case "5":
                     // Delete a city
-                    // TODO: start this 
+                    // TODO: start this
                     break;
                 case "6":
                     // Exit
