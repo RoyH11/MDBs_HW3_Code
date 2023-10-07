@@ -67,7 +67,7 @@ public class App {
                 System.out.println(resultSet.getString(attribute));
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());;
+            System.out.println(e.getMessage());
         }
     }
 
@@ -86,7 +86,14 @@ public class App {
 
     private static void createCity(String city_name, String postal_code, String country_code){
         // Create a city
-        // TODO: finish this
+        String sql = "INSERT INTO homework.cities VALUES ('"+city_name+"', '"+postal_code+"', '"+country_code+"');";
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 
