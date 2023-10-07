@@ -71,12 +71,12 @@ public class App {
         }
     }
 
+
     private static void listCountries() {
         // List all the countries
         String sql = "SELECT * FROM homework.countries;";
         sqlHandler(sql, "country_name");
     }
-
 
     private static void searchCity(String city_name) {
         // Search a city by name
@@ -87,16 +87,20 @@ public class App {
     private static void createCity(String city_name, String postal_code, String country_code){
         // Create a city
         String sql = "INSERT INTO homework.cities VALUES ('"+city_name+"', '"+postal_code+"', '"+country_code+"');";
-        Statement statement = null;
-        try {
-            statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        sqlHandler(sql, null);
     }
 
+    private static void updateCity(String city_name, String postal_code){
+        // Update a city
+        String sql = "UPDATE homework.cities SET postal_code = '"+postal_code+"' WHERE name = '"+city_name+"';";
+        sqlHandler(sql, null);
+    }
 
+    private static void deleteCity(String city_name){
+        // Delete a city
+        String sql = "DELETE FROM homework.cities WHERE name = '"+city_name+"';";
+        sqlHandler(sql, null);
+    }
 
 
 
@@ -134,12 +138,13 @@ public class App {
                     // Update a city in the cities table
                     city_name = getUserInput();
                     postal_code = getUserInput();
-                    country_code = getUserInput();
-                    // TODO: create method
+                    //country_code = getUserInput();
+                    updateCity(city_name, postal_code);
                     break;
                 case "5":
                     // Delete a city
-                    // TODO: start this
+                    city_name = getUserInput();
+                    deleteCity(city_name);
                     break;
                 case "6":
                     // Exit
