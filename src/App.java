@@ -102,11 +102,35 @@ public class App {
         sqlHandler(sql, "country_name", "country_code");
     }
 
-    private static boolean searchCity(String city_name) {
+    private static boolean searchCityByName(String city_name) {
         // Search a city by name
         boolean result = true;
         city_name = lowerCase(city_name);
         String sql = "SELECT * FROM homework.cities WHERE LOWER(name) = '" + city_name +"';";
+        if (!sqlHandler(sql, "name", "postal_code")){
+            result = false;
+        }
+
+        return result;
+    }
+
+    private static boolean searchCityByPostal(String postal_code) {
+        // Search a city by name
+        boolean result = true;
+        postal_code = lowerCase(postal_code);
+        String sql = "SELECT * FROM homework.cities WHERE LOWER(postal_code) = '" + postal_code +"';";
+        if (!sqlHandler(sql, "name", "postal_code")){
+            result = false;
+        }
+
+        return result;
+    }
+
+    private static boolean searchCityByCountry(String country_code) {
+        // Search a city by name
+        boolean result = true;
+        country_code = lowerCase(country_code);
+        String sql = "SELECT * FROM homework.cities WHERE LOWER(country_code) = '" + country_code +"';";
         if (!sqlHandler(sql, "name", "postal_code")){
             result = false;
         }
@@ -120,10 +144,12 @@ public class App {
         sqlHandler(sql, null);
     }
 
-    private static void updateCity(String city_name, String postal_code){
+    private static void updateCity(String city_name, String postal_code, String country_code){
         // Update a city
         city_name = lowerCase(city_name);
         postal_code = lowerCase(postal_code);
+        country_code = lowerCase(country_code);
+
         String sql = "UPDATE homework.cities SET LOWER(postal_code) = '"+postal_code+"' WHERE LOWER(name) = '"+city_name+"';";
         sqlHandler(sql, null);
     }
@@ -186,17 +212,27 @@ public class App {
                     break;
                 case "2":
                     // Search a city
+                    System.out.println("Hit enter to skip");
                     System.out.print("Enter city name: ");
                     city_name = getUserInput();
-                    if(!searchCity(city_name)){
-                        System.out.println("City not found!");
+                    System.out.print("Enter postal code: ");
+                    postal_code = getUserInput();
+                    System.out.print("Enter country code: ");
+                    country_code = getUserInput();
+
+                    if(!searchCityByName(city_name)){
+                        if(!searchCityByPostal(postal_code)){
+                            if(!searchCityByCountry(country_code)){
+                                System.out.println("City not found!");
+                            }
+                        }
                     }
                     break;
                 case "3":
                     // Add a new city
                     System.out.print("Enter city name: ");
                     city_name = getUserInput();
-                    if (searchCity(city_name)){
+                    if (searchCityByName(city_name)){
                         System.out.println("City already exists!");
                     } else{
                         System.out.print("Enter postal code: ");
@@ -210,10 +246,16 @@ public class App {
                     // Update a city
                     System.out.print("Enter city name: ");
                     city_name = getUserInput();
-                    System.out.print("Enter new postal code: ");
-                    postal_code = getUserInput();
-                    //country_code = getUserInput();
-                    updateCity(city_name, postal_code);
+                    if(!searchCityByName(city_name)){
+                        System.out.println("City not found!");
+                    }else{
+                        System.out.println("Hit enter to skip");
+                        System.out.print("Enter new postal code: ");
+                        postal_code = getUserInput();
+                        System.out.print("Enter new country code: ");
+                        country_code = getUserInput();
+                        updateCity(city_name, postal_code, country_code);
+                    }
                     break;
                 case "5":
                     // Delete a city
