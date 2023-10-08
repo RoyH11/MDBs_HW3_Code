@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class App {
 
-    private static final String url = "jdbc:postgresql://s-l112.engr.uiowa.edu:5432/mdb_student02";
+    private static final String url = "jdbc:postgresql://s-l112.engr.uiowa.edu:5432/mdb_student02?currentSchema=homework";
     private static final String user;
     private static final String password;
     private static final Connection connection;
@@ -55,17 +55,12 @@ public class App {
         System.out.println("8. Delete a venue");
         System.out.println("9. Add an event");
         System.out.println("10. Exit");
-        System.out.println("11. test");
     }
 
 
     private static String getUserInput() {
         return scanner.nextLine().trim();
     } // getUserInput
-
-    private static String lowerCase(String input){
-        return input.toLowerCase();
-    } // lowerCase helper method
 
     private static boolean sqlHandler(String sql, String... attribute){
         // sql execution helper method
@@ -76,7 +71,7 @@ public class App {
             statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
 
-            while(resultSet.next()){
+            while(resultSet.next() && attribute != null){
                 for (String s : attribute) {
                     System.out.print(resultSet.getString(s)+" ");
                 }
@@ -105,7 +100,7 @@ public class App {
     private static boolean searchCityByName(String city_name) {
         // Search a city by name
         boolean result = true;
-        city_name = lowerCase(city_name);
+        city_name = city_name.toLowerCase();
         String sql = "SELECT * FROM homework.cities WHERE LOWER(name) = '" + city_name +"';";
         if (!sqlHandler(sql, "name", "postal_code")){
             result = false;
@@ -117,7 +112,7 @@ public class App {
     private static boolean searchCityByPostal(String postal_code) {
         // Search a city by name
         boolean result = true;
-        postal_code = lowerCase(postal_code);
+        postal_code = postal_code.toLowerCase();
         String sql = "SELECT * FROM homework.cities WHERE LOWER(postal_code) = '" + postal_code +"';";
         if (!sqlHandler(sql, "name", "postal_code")){
             result = false;
@@ -129,7 +124,7 @@ public class App {
     private static boolean searchCityByCountry(String country_code) {
         // Search a city by name
         boolean result = true;
-        country_code = lowerCase(country_code);
+        country_code = country_code.toLowerCase();
         String sql = "SELECT * FROM homework.cities WHERE LOWER(country_code) = '" + country_code +"';";
         if (!sqlHandler(sql, "name", "postal_code")){
             result = false;
@@ -144,26 +139,40 @@ public class App {
         sqlHandler(sql, null);
     }
 
-    private static void updateCity(String city_name, String postal_code, String country_code){
+    private static void updateCity(String old_city_name, String new_city_name, String postal_code, String country_code){
         // Update a city
-        city_name = lowerCase(city_name);
-        postal_code = lowerCase(postal_code);
-        country_code = lowerCase(country_code);
+        old_city_name = old_city_name.toLowerCase();
+        new_city_name = new_city_name.toLowerCase();
+        postal_code = postal_code.toLowerCase();
+        country_code = country_code.toLowerCase();
 
-        String sql = "UPDATE homework.cities SET LOWER(postal_code) = '"+postal_code+"' WHERE LOWER(name) = '"+city_name+"';";
+        String set = "SET ";
+        if (!new_city_name.isEmpty()){
+            set += "name = '"+new_city_name+"', ";
+        }
+        if (!postal_code.isEmpty()){
+            set += "postal_code = '"+postal_code+"', ";
+        }
+        if (!country_code.isEmpty()){
+            set += "country_code = '"+country_code+"', ";
+        }
+        set = set.substring(0, set.length()-2);
+
+        String sql = "UPDATE homework.cities "+set+" WHERE LOWER(name) = '"+old_city_name+"';";
+
         sqlHandler(sql, null);
     }
 
     private static void deleteCity(String city_name){
         // Delete a city
-        city_name = lowerCase(city_name);
+        city_name = city_name.toLowerCase();
         String sql = "DELETE FROM homework.cities WHERE LOWER(name) = '"+city_name+"';";
         sqlHandler(sql, null);
     }
 
     private static void listAllActiveVenues(String country_code){
         // List all active venues given a country code
-        country_code = lowerCase(country_code);
+        country_code = country_code.toLowerCase();
         String sql = "SELECT * FROM homework.venues WHERE LOWER(country_code) = '"+country_code+"' AND active = true;";
         sqlHandler(sql, "name");
     }
@@ -176,14 +185,14 @@ public class App {
 
     private static void deleteVenue(String venue_name){
         // Delete a venue
-        venue_name = lowerCase(venue_name);
+        venue_name = venue_name.toLowerCase();
         String sql = "DELETE FROM homework.venues WHERE LOWER(name) = '"+venue_name+"';";
         sqlHandler(sql, null);
     }
 
     private static void addEvent(String title, String starts, String ends, String venue, String postal, String country){
         // Add an event
-        String sql = "INSERT INTO homework.events VALUES ('"+title+"', '"+starts+"', '"+ends+"', '"+venue+"', '"+postal+"', '"+country+"');";
+        String sql = "SELECT homework.add_event ('"+title+"', '"+starts+"', '"+ends+"', '"+venue+"', '"+postal+"', '"+country+"');";
         sqlHandler(sql, null);
     }
 
@@ -210,6 +219,7 @@ public class App {
                     // List all the countries
                     listCountries();
                     break;
+
                 case "2":
                     // Search a city
                     System.out.println("Hit enter to skip");
@@ -228,6 +238,7 @@ public class App {
                         }
                     }
                     break;
+
                 case "3":
                     // Add a new city
                     System.out.print("Enter city name: ");
@@ -242,6 +253,7 @@ public class App {
                         createCity(city_name, postal_code, country_code);
                     }
                     break;
+
                 case "4":
                     // Update a city
                     System.out.print("Enter city name: ");
@@ -250,52 +262,66 @@ public class App {
                         System.out.println("City not found!");
                     }else{
                         System.out.println("Hit enter to skip");
+                        System.out.print("Enter new city name: ");
+                        String new_city_name = getUserInput();
                         System.out.print("Enter new postal code: ");
                         postal_code = getUserInput();
                         System.out.print("Enter new country code: ");
                         country_code = getUserInput();
-                        updateCity(city_name, postal_code, country_code);
+                        updateCity(city_name, new_city_name, postal_code, country_code);
                     }
                     break;
+
                 case "5":
                     // Delete a city
+                    System.out.print("Enter city name: ");
                     city_name = getUserInput();
                     deleteCity(city_name);
                     break;
+
                 case "6":
                     // List all active venues given a country code
+                    System.out.print("Enter country code: ");
                     country_code = getUserInput();
                     listAllActiveVenues(country_code);
                     break;
+
                 case "7":
                     // List all inactive venues
                     listAllInactiveVenues();
                     break;
+
                 case "8":
                     // Delete a venue
+                    System.out.print("Enter venue name: ");
                     venue_name = getUserInput();
                     deleteVenue(venue_name);
                     break;
+
                 case "9":
                     // Add an event
+                    System.out.print("Enter event title: ");
                     title = getUserInput();
+                    System.out.print("Enter start time: ");
                     starts = getUserInput();
+                    System.out.print("Enter end time: ");
                     ends = getUserInput();
+                    System.out.print("Enter venue name: ");
                     venue = getUserInput();
+                    System.out.print("Enter postal code: ");
                     postal = getUserInput();
+                    System.out.print("Enter country code: ");
                     country = getUserInput();
                     addEvent(title, starts, ends, venue, postal, country);
                     break;
+
                 case "10":
                     // Exit
                     loop = false;
                     break;
-                case "11":
-                    // test
-                    String test = getUserInput();
-                    if(test.isEmpty()){
-                        System.out.println("test");
-                    }
+
+                default:
+                    System.out.println("Invalid input!");
                     break;
             }
         }
