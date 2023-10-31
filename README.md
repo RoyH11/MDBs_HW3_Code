@@ -12,7 +12,7 @@ To execute the program, follow these steps:
 3. In 'project structure' -> 'libraries,' add JDBC driver. You can download the driver from [here](https://jdbc.postgresql.org/download/).
 4. In `src/credentials`, fill in the first line with your username, and the second line with your password.
 5. Change the URL in line 10 to your database URL.
-6. After completing the above steps, click run `App.java`.
+6. After completing the above steps, click `Run App.java`.
 
 ## Functionalities
 
